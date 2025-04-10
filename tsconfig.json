@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "module": "commonjs",
-    "jsx": "preserve",
-    "esModuleInterop": true,
-    "sourceMap": true,
-    "allowJs": true,
-    "lib": [
-      "es6",
-      "dom"
-    ],
-    "rootDir": "src",
+    "target": "ESNext",         // Or ESNext if you want the latest features
+    "module": "ESNext",
     "moduleResolution": "node",
-    "strictPropertyInitialization": false,
-    "allowSyntheticDefaultImports": true
-  }
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "src/**/*"
+  ]
 }

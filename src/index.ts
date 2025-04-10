@@ -6,10 +6,13 @@ import {
   BoxGeometry,
   PerspectiveCamera,
   WebGLRenderer,
-  OrthographicCamera
+  OrthographicCamera,
+  Raycaster,
+  Vector2
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Stats from "stats.js";
+import { DefaultCube, TileColor } from "./default_cube";
 
 class Main {
   /** The scene */
@@ -30,6 +33,10 @@ class Main {
   /** The cube mesh */
   public cube: Mesh;
 
+  public raycaster: Raycaster;
+
+  public mouse: Vector2;
+
   constructor() {
     this.initViewport();
   }
@@ -43,17 +50,19 @@ class Main {
     // Init camera.
     const aspect = window.innerWidth / window.innerHeight;
     this.camera = new PerspectiveCamera(50, aspect, 1, 5000);
-    this.camera.position.z = 700;
+    this.camera.position.z = 1000;
 
     // Init renderer.
     this.renderer = new WebGLRenderer({
       powerPreference: "high-performance",
       antialias: true
     });
+
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene, this.camera);
-    // this.renderer.setAnimationLoop(() => this.animate()); // uncomment if you want to use the animation loop
+
+
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener("resize", () => this.onResize());
 
@@ -67,8 +76,9 @@ class Main {
     this.controls.addEventListener("change", () => this.render());
 
     // Add test mesh.
-    this.cube = this.createCubeMesh();
-    this.scene.add(this.cube);
+
+    (new DefaultCube(TileColor.Orange, 12)).getMesh(this.scene);
+
     this.render();
 
     console.log(this);
@@ -104,13 +114,6 @@ class Main {
     this.render();
   }
 
-  /** Creates a cube mesh */
-  public createCubeMesh() {
-    const geometry = new BoxGeometry(200, 200, 200);
-    const material = new MeshNormalMaterial();
-    const mesh = new Mesh(geometry, material);
-    return mesh;
-  }
 }
 
 new Main();
