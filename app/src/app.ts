@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SquareTile } from './SquareTile';
 import { components_map } from './globals';
+import { NewSectionTile } from './NewSectionTile';
 
 
 export default class App {
     private renderer!: THREE.WebGLRenderer;
     private scene!: THREE.Scene;
-    private camera!: THREE.PerspectiveCamera;
+    private camera!: THREE.PerspectiveCamera | THREE.OrthographicCamera;
 
     private lightAmbient!: THREE.AmbientLight;
     private controls!: OrbitControls;
@@ -27,7 +28,9 @@ export default class App {
     initScene() {
         this.scene = new THREE.Scene();
 
-        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 5000);
+        // this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 5000);
+        this.camera = new THREE.OrthographicCamera(window.innerWidth / - 100, window.innerWidth / 100, window.innerHeight / 100, window.innerHeight / - 100, 1, 1000);
+
         this.camera.position.z = 10;
 
         this.renderer = new THREE.WebGLRenderer();
@@ -40,6 +43,20 @@ export default class App {
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
+        this.controls.minPolarAngle = Math.PI / 2;
+        this.controls.maxPolarAngle = Math.PI / 2;
+
+        this.controls.minAzimuthAngle = 0;
+        this.controls.maxAzimuthAngle = 0;
+
+        this.controls.zoomToCursor = true
+
+        // this.controls.touches = {
+        //     ONE: THREE.TOUCH.ROTATE,
+        //     TWO: THREE.TOUCH.DOLLY_PAN
+        // }
+
+
         this.lightAmbient = new THREE.AmbientLight(0xf0f0f0);
         this.scene.add(this.lightAmbient);
 
@@ -51,7 +68,9 @@ export default class App {
         this.raycaster = new THREE.Raycaster();
 
 
-        (new SquareTile()).addToScene(this.scene);
+        (new SquareTile(new THREE.Vector3(0, 0, 0))).addToScene(this.scene);
+
+        (new NewSectionTile(new THREE.Vector3(0, 3, 0))).addToScene(this.scene);
 
         const geometryPlane = new THREE.PlaneGeometry(6, 6, 1, 1);
         const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
@@ -65,8 +84,6 @@ export default class App {
     }
 
     initListeners() {
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
-
         window.addEventListener('keydown', (event) => {
             const { key } = event;
 
@@ -91,22 +108,16 @@ export default class App {
                 if (components_map.has(intersects[0].object.uuid)) {
                     components_map.get(intersects[0].object.uuid)!();
                 }
-                else {
-                    for (var i in intersects)
-                        console.log(intersects[i].object.uuid, "not found");
-                }
             }
         }
-
-
         );
     }
 
-    onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+    // onWindowResize() {
+    //     this.camera.aspect = window.innerWidth / window.innerHeight;
+    //     this.camera.updateProjectionMatrix();
+    //     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    // }
 
     animate() {
         requestAnimationFrame(() => {
