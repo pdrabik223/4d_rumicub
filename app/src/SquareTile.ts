@@ -28,7 +28,6 @@ export class SquareTile {
     private group = new THREE.Group();
 
     protected position: THREE.Vector3 = new THREE.Vector3();
-    // protected size: number= new THREE.Vector3();
 
     constructor(position: THREE.Vector3) {
         this.position = position;
@@ -71,11 +70,15 @@ export class SquareTile {
     };
 
 
-
     private getCollisionPlane(position: CollisionPlanePosition) {
 
         const geometryPlane = new THREE.PlaneGeometry(1.6, 1.6, 1, 1);
-        const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
+        const materialPlane = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,
+            color: 0x666666
+        });
+
         var plane = new THREE.Mesh(geometryPlane, materialPlane);
 
         plane.position.x = this.position.x
@@ -118,10 +121,10 @@ export class SquareTile {
         components_map.set(plane.uuid, () => {
             console.log(position, this.position)
 
-            if (materialPlane.color.getHex() == 0xAA6666) {
-                materialPlane.color.set(0x666666);
+            if (materialPlane.opacity == 0.0) {
+                materialPlane.opacity = 0.7;
             } else {
-                materialPlane.color.set(0xAA6666);
+                materialPlane.opacity = 0.0;
             }
         });
         return plane
@@ -131,7 +134,11 @@ export class SquareTile {
 
 
         const geometryPlane = new THREE.PlaneGeometry(0.26, 1.6, 1, 1);
-        const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
+        const materialPlane = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,
+            color: 0x666666
+        });
         var plane = new THREE.Mesh(geometryPlane, materialPlane);
 
         plane.position.x = this.position.x
@@ -169,12 +176,13 @@ export class SquareTile {
 
         components_map.set(plane.uuid, () => {
             console.log(position, this.position)
-            if (materialPlane.color.getHex() == 0xAA6666) {
-                materialPlane.color.set(0x666666);
+
+            if (materialPlane.opacity == 0.0) {
+                materialPlane.opacity = 0.7;
             } else {
-                materialPlane.color.set(0xAA6666);
+                materialPlane.opacity = 0.0;
             }
-            console.log()
+
         });
         return plane
     }

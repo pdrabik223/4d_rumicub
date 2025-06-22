@@ -52,7 +52,11 @@ export class NewSectionTile {
     private getCollisionPlane(position: CollisionPlanePosition) {
 
         const geometryPlane = new THREE.PlaneGeometry(1.6, 1.6, 1, 1);
-        const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
+        const materialPlane = new THREE.MeshStandardMaterial({
+            transparent: true,
+            opacity: 0,
+            color: 0x666666
+        });
         materialPlane.transparent = true
         var plane = new THREE.Mesh(geometryPlane, materialPlane);
 
@@ -64,11 +68,10 @@ export class NewSectionTile {
 
         components_map.set(plane.uuid, () => {
             console.log(position, this.position)
-
-            if (materialPlane.color.getHex() == 0xAA6666) {
-                materialPlane.color.set(0x666666);
+            if (materialPlane.opacity == 0.0) {
+                materialPlane.opacity = 0.7;
             } else {
-                materialPlane.color.set(0xAA6666);
+                materialPlane.opacity = 0.0;
             }
         });
         return plane

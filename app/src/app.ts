@@ -16,8 +16,6 @@ export default class App {
     private pointer!: THREE.Vector2;
     private raycaster!: THREE.Raycaster;
 
-    private plane!: THREE.Mesh;
-
 
     constructor() {
         this.initScene();
@@ -43,11 +41,11 @@ export default class App {
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        this.controls.minPolarAngle = Math.PI / 2;
-        this.controls.maxPolarAngle = Math.PI / 2;
+        // this.controls.minPolarAngle = Math.PI / 2;
+        // this.controls.maxPolarAngle = Math.PI / 2;
 
-        this.controls.minAzimuthAngle = 0;
-        this.controls.maxAzimuthAngle = 0;
+        // this.controls.minAzimuthAngle = 0;
+        // this.controls.maxAzimuthAngle = 0;
 
         this.controls.zoomToCursor = true
 
@@ -57,28 +55,37 @@ export default class App {
         // }
 
 
-        this.lightAmbient = new THREE.AmbientLight(0xf0f0f0);
+        this.lightAmbient = new THREE.AmbientLight(0xA0A0A0);
         this.scene.add(this.lightAmbient);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        dirLight.position.set(50, 50, 50);
+        const dirLight = new THREE.DirectionalLight(0x99ff99, 4);
+        dirLight.position.set(100, 100, 100);
         this.scene.add(dirLight);
+
+
+        const dirLightB = new THREE.DirectionalLight(0xff9999, 4);
+        dirLightB.position.set(-100, -100, -100);
+        this.scene.add(dirLightB);
+
+
+        const dirLightC = new THREE.DirectionalLight(0xaaaaff, 4);
+        dirLightC.position.set(-100, 100, 100);
+        this.scene.add(dirLightC);
+
+        const dirLightD = new THREE.DirectionalLight(0xaaaaff, 4);
+        dirLightD.position.set(100, -100, 100);
+        this.scene.add(dirLightD);
+
+        const dirLightE = new THREE.DirectionalLight(0xaaaaff, 4);
+        dirLightE.position.set(100, -100, -100);
+        this.scene.add(dirLightE);
 
         this.pointer = new THREE.Vector2();
         this.raycaster = new THREE.Raycaster();
 
-
         (new SquareTile(new THREE.Vector3(0, 0, 0))).addToScene(this.scene);
 
         (new NewSectionTile(new THREE.Vector3(0, 3, 0))).addToScene(this.scene);
-
-        const geometryPlane = new THREE.PlaneGeometry(6, 6, 1, 1);
-        const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
-
-        this.plane = new THREE.Mesh(geometryPlane, materialPlane);
-        this.plane.position.z = -2;
-        this.plane.receiveShadow = true;
-        this.scene.add(this.plane);
 
         this.animate();
     }
@@ -112,12 +119,6 @@ export default class App {
         }
         );
     }
-
-    // onWindowResize() {
-    //     this.camera.aspect = window.innerWidth / window.innerHeight;
-    //     this.camera.updateProjectionMatrix();
-    //     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // }
 
     animate() {
         requestAnimationFrame(() => {
