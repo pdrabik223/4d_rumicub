@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Font, TextGeometry, FontLoader, OBJLoader } from 'three/examples/jsm/Addons.js';
 import { components_map, PI } from './globals';
+import { ActionType, CollisionPlanePosition, Mode } from './CollisionPlanePosition';
 
 export function getHexColor(colorId: number) {
     const colors = [0xf23a3a, 0xf2813a, 0x141212, 0x2361fc];
@@ -10,27 +11,20 @@ export function getHexColor(colorId: number) {
     return colors[colorId];
 }
 
-enum CollisionPlanePosition {
-    Top,
-    Bottom,
-    Front,
-    Back,
-    Left,
-    Right
-};
-
 
 export class SquareTile {
 
     static tileMaterial: THREE.MeshPhongMaterial = new THREE.MeshPhongMaterial({ color: 0x964B00 });
     static tileGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(2, 2, 2);
 
+    private mode: Mode;
     private group = new THREE.Group();
 
     protected position: THREE.Vector3 = new THREE.Vector3();
 
-    constructor(position: THREE.Vector3) {
+    constructor(position: THREE.Vector3, mode: Mode) {
         this.position = position;
+        this.mode = mode
     }
 
     private static numberMaterial(color: number) {
@@ -118,14 +112,17 @@ export class SquareTile {
             }
         }
 
-        components_map.set(plane.uuid, () => {
-            console.log(position, this.position)
+        components_map.set(plane.uuid, (scene: THREE.Scene, action: ActionType) => {
 
-            if (materialPlane.opacity == 0.0) {
+            if (action === ActionType.Hover)
                 materialPlane.opacity = 0.7;
-            } else {
+
+            if (action === ActionType.Empty)
                 materialPlane.opacity = 0.0;
-            }
+
+            // if (action === ActionType.Press)
+            //     this.addBeginningBlock(scene);
+
         });
         return plane
     }
@@ -146,25 +143,25 @@ export class SquareTile {
         plane.position.z = this.position.z + 1.9
 
         switch (position) {
-            case CollisionPlanePosition.Top: {
+            case CollisionPlanePosition.Top2D: {
                 geometryPlane.rotateY((-45 * PI) / 180);
                 geometryPlane.rotateZ((-90 * PI) / 180);
                 plane.position.y += 0.91;
                 break;
             }
-            case CollisionPlanePosition.Bottom: {
+            case CollisionPlanePosition.Bottom2D: {
                 geometryPlane.rotateY((45 * PI) / 180);
                 geometryPlane.rotateZ((-90 * PI) / 180);
                 plane.position.y -= 0.91;
                 break;
             }
-            case CollisionPlanePosition.Right: {
+            case CollisionPlanePosition.Right2D: {
                 geometryPlane.rotateY((45 * PI) / 180);
                 plane.position.x += 0.91;
                 break;
             }
 
-            case CollisionPlanePosition.Left: {
+            case CollisionPlanePosition.Left2D: {
                 geometryPlane.rotateY((-45 * PI) / 180);
                 plane.position.x -= 0.91;
                 break;
@@ -174,14 +171,16 @@ export class SquareTile {
             }
         }
 
-        components_map.set(plane.uuid, () => {
-            console.log(position, this.position)
+        components_map.set(plane.uuid, (scene: THREE.Scene, action: ActionType) => {
 
-            if (materialPlane.opacity == 0.0) {
+            if (action === ActionType.Hover)
                 materialPlane.opacity = 0.7;
-            } else {
+
+            if (action === ActionType.Empty)
                 materialPlane.opacity = 0.0;
-            }
+
+            // if (action === ActionType.Press)
+            //     this.addBeginningBlock(scene);
 
         });
         return plane
@@ -195,8 +194,6 @@ export class SquareTile {
             object.position.set(this.position.x, this.position.y, this.position.z);
             this.group.add(object);
             scene.add(object);
-            console.log(object.uuid)
-            components_map.set(object.uuid, () => { console.log(object) });
 
         }
         );
@@ -206,22 +203,31 @@ export class SquareTile {
             var numberMesh = this.getNumberMesh(font, 12, 2);
             this.group.add(numberMesh);
             scene.add(numberMesh);
-            components_map.set(numberMesh.uuid, () => { console.log(numberMesh) });
 
         });
 
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Top));
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Bottom));
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Front));
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Back));
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Right));
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Left));
+        switch (this.mode) {
+            case Mode.Mode3D: {
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Top));
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Bottom));
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Front));
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Back));
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Right));
+                scene.add(this.getCollisionPlane(CollisionPlanePosition.Left));
+            }
 
+            case Mode.Mode2D: {
+                scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Top2D));
+                scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Bottom2D));
+            }
 
-        scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Top));
-        scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Bottom));
-        scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Right));
-        scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Left));
+            case Mode.Mode1D: {
+                scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Right2D));
+                scene.add(this.get2DCollisionPlane(CollisionPlanePosition.Left2D));
+            }
+
+        }
+
 
 
     }

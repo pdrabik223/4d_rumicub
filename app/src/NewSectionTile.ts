@@ -1,12 +1,8 @@
 import * as THREE from 'three';
 import { Font, TextGeometry, FontLoader, OBJLoader } from 'three/examples/jsm/Addons.js';
 import { components_map } from './globals';
-
-
-enum CollisionPlanePosition {
-    Top,
-};
-
+import { ActionType, Mode } from './CollisionPlanePosition';
+import { SquareTile } from './SquareTile';
 
 export class NewSectionTile {
 
@@ -20,7 +16,6 @@ export class NewSectionTile {
     constructor(position: THREE.Vector3) {
         this.position = position;
     }
-
 
     protected getNumberMesh(font: Font): THREE.Mesh {
         const geometry = new TextGeometry('+', {
@@ -47,9 +42,7 @@ export class NewSectionTile {
         return mesh;
     };
 
-
-
-    private getCollisionPlane(position: CollisionPlanePosition) {
+    private getCollisionPlane(): THREE.Mesh {
 
         const geometryPlane = new THREE.PlaneGeometry(1.6, 1.6, 1, 1);
         const materialPlane = new THREE.MeshStandardMaterial({
@@ -66,15 +59,33 @@ export class NewSectionTile {
 
         plane.position.z += 1.01;
 
-        components_map.set(plane.uuid, () => {
-            console.log(position, this.position)
-            if (materialPlane.opacity == 0.0) {
+        components_map.set(plane.uuid, (scene: THREE.Scene, action: ActionType) => {
+            if (action === ActionType.Hover)
                 materialPlane.opacity = 0.7;
-            } else {
+
+            if (action === ActionType.Empty)
                 materialPlane.opacity = 0.0;
-            }
+
+            if (action === ActionType.Press)
+                this.addBeginningBlock(scene);
         });
         return plane
+    }
+
+    private addBeginningBlock(scene: THREE.Scene) {
+        // console.log(this.group)
+
+        // for (var i = 0; i < this.group.children.length; i++) {
+        // console.log(this.group.children[i])
+        scene.remove(this.group);
+
+        (new SquareTile(this.position, Mode.Mode3D)).addToScene(scene);
+
+        (new NewSectionTile(new THREE.Vector3(this.position.x, this.position.y + 3, this.position.z))).addToScene(scene);
+        // }
+        // remove original block
+        // add new block in it's place 
+        // add new original block back
     }
 
     public addToScene(scene: THREE.Scene) {
@@ -84,9 +95,6 @@ export class NewSectionTile {
             object.scale.set(2, 2, 2);
             object.position.set(this.position.x, this.position.y, this.position.z);
             this.group.add(object);
-            scene.add(object);
-            console.log(object.uuid)
-            components_map.set(object.uuid, () => { console.log(object) });
 
         }
         );
@@ -95,13 +103,13 @@ export class NewSectionTile {
 
             var numberMesh = this.getNumberMesh(font);
             this.group.add(numberMesh);
-            scene.add(numberMesh);
-            components_map.set(numberMesh.uuid, () => { console.log(numberMesh) });
+
 
         });
 
-        scene.add(this.getCollisionPlane(CollisionPlanePosition.Top));
 
+        this.group.add(this.getCollisionPlane())
+        scene.add(this.group);
     }
 
 }
