@@ -19,12 +19,16 @@ export class SquareTile {
 
     private mode: Mode;
     private group = new THREE.Group();
+    private value: number;
+    private color: number;
 
     protected position: THREE.Vector3 = new THREE.Vector3();
 
-    constructor(position: THREE.Vector3, mode: Mode) {
+    constructor(value: number, color: number, position: THREE.Vector3, mode: Mode) {
         this.position = position;
-        this.mode = mode
+        this.value = value;
+        this.color = color;
+        this.mode = mode;
     }
 
     private static numberMaterial(color: number) {
@@ -200,7 +204,7 @@ export class SquareTile {
 
         (new FontLoader()).load('fonts/Roboto_Regular.json', (font) => {
 
-            var numberMesh = this.getNumberMesh(font, 12, 2);
+            var numberMesh = this.getNumberMesh(font, this.value, this.color);
             this.group.add(numberMesh);
             scene.add(numberMesh);
 

@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SquareTile } from './SquareTile';
-import { components_map } from './globals';
+import { board, components_map } from './globals';
 import { NewSectionTile } from './NewSectionTile';
 import { ActionType, Mode } from './CollisionPlanePosition';
+import { Position, Cell } from '../logic/Board';
 
 
 
@@ -43,9 +44,24 @@ export default class App {
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        (new SquareTile(new THREE.Vector3(0, 0, 0), Mode.Mode3D)).addToScene(this.scene);
+        board.setCell(new Cell(3, 1), new Position(0, 0, 0));
+        board.setCell(new Cell(4, 2), new Position(1, 0, 0));
+        board.setCell(new Cell(5, 3), new Position(0, 1, 0));
+        board.setCell(new Cell(53, 0), new Position(1, 1, 0));
+        board.setCell(new Cell(3, 1), new Position(-1, 0, 0));
+        board.setCell(new Cell(4, 2), new Position(-1, 0, 0));
+        board.setCell(new Cell(5, 3), new Position(0, -1, 0));
+        board.setCell(new Cell(53, 0), new Position(-1, -1, 0));
+        board.setCell(new Cell(99, 0), new Position(-4, -1, 0));
+        // board.setCell(new Cell(63, 2), new Position(4, 0, 0));
 
-        (new NewSectionTile(new THREE.Vector3(0, 3, 0))).addToScene(this.scene);
+        board.forEach((pos: Position, cell: Cell) => {
+
+            (new SquareTile(cell.value, cell.color, new THREE.Vector3(pos.x * 2.1, pos.y * 2.1, pos.z * 2.1), Mode.Mode3D)).addToScene(this.scene);
+
+        });
+
+        // (new NewSectionTile(new THREE.Vector3(0, 3, 0))).addToScene(this.scene);
 
         this.initCameraControls();
         this.initLights();
@@ -114,15 +130,17 @@ export default class App {
             this.raycaster.setFromCamera(this.pointer, this.camera);
 
             const intersects = this.raycaster.intersectObjects(this.scene.children);
+            var intersectId: string | null = null;
 
             if (intersects.length > 0) {
-                if (components_map.has(intersects[0].object.uuid)) {
-                    components_map.get(intersects[0].object.uuid)!(this.scene, ActionType.Hover);
+                intersectId = intersects[0].object.uuid;
+                if (components_map.has(intersectId)) {
+                    components_map.get(intersectId)!(this.scene, ActionType.Hover);
                 }
-            }
 
+            }
             components_map.forEach((value: (scene: THREE.Scene, action: ActionType) => void, key: string) => {
-                if (key !== intersects[0].object.uuid) {
+                if (intersectId !== null && key != intersectId) {
                     value!(this.scene, ActionType.Empty);
                 }
             });
