@@ -30,11 +30,20 @@ export class Cell {
 
 }
 
+export enum Axis {
+    X,
+    Y,
+    Z
+
+}
+
 export class Board {
     protected rawBoard: Map<number, Map<number, Map<number, Cell>>>;
     constructor() {
-
         this.rawBoard = new Map<number, Map<number, Map<number, Cell>>>();
+    }
+    public fromBoard(other: Board): void {
+        this.rawBoard = other.rawBoard;
 
     }
 
@@ -49,7 +58,10 @@ export class Board {
         if (!this.getYAxis(x)!.has(y)) return null;
         return this.getYAxis(x)!.get(y)!
     }
+    public isEmpty(): boolean {
 
+        return this.rawBoard.size == 0
+    }
     public getCell(position: Position): Cell | null {
 
         if (this.rawBoard.has(position.x))
@@ -125,5 +137,68 @@ export class Board {
             };
 
         })
+    }
+    public getBoundaries(): [[number, number], [number, number], [number, number]] | null {
+        // returns minimal and maximal position for every axis,
+        // in case that board is empty null value will be returned
+        if (this.isEmpty()) return null
+
+        var XSpan = [9999, -9999]
+        var YSpan = [9999, -9999]
+        var ZSpan = [9999, -9999]
+
+
+        this.rawBoard.forEach((_, xKey) => {
+            if (xKey < XSpan[0])
+                XSpan[0] = xKey
+            else if (xKey > XSpan[1])
+                XSpan[1] = xKey
+            this.getYAxis(xKey)!.forEach((_, yKey) => {
+                if (yKey < YSpan[0])
+                    YSpan[0] = yKey
+                else if (yKey > YSpan[1])
+                    YSpan[1] = yKey
+                this.getZAxis(xKey, yKey)!.forEach((_, zKey) => {
+                    if (zKey < ZSpan[0])
+                        ZSpan[0] = zKey
+                    else if (zKey > ZSpan[1])
+                        ZSpan[1] = zKey
+                })
+            })
+        })
+
+        return [[XSpan[0], XSpan[1]], [YSpan[0], YSpan[1]], [ZSpan[0], ZSpan[1]]]
+    }
+
+    public split(axis: Axis, offset: number, size: number): Board {
+
+        var resultBoard = new Board();
+
+        switch (axis) {
+            case Axis.X: {
+                this.forEach((pos, cell) => {
+                    if (pos.x <= offset) resultBoard.setCell(cell, pos);
+                    else resultBoard.setCell(cell, new Position(pos.x + size, pos.y, pos.z));
+                })
+                break;
+            }
+            case Axis.Y: {
+                this.forEach((pos, cell) => {
+                    if (pos.y <= offset) resultBoard.setCell(cell, pos);
+                    else resultBoard.setCell(cell, new Position(pos.x, pos.y + size, pos.z));
+                })
+                break;
+            }
+            case Axis.Z: {
+                this.forEach((pos, cell) => {
+                    if (pos.z <= offset) resultBoard.setCell(cell, pos);
+                    else resultBoard.setCell(cell, new Position(pos.x, pos.y, pos.z + size));
+                })
+                break;
+            }
+
+        }
+
+        return resultBoard;
     }
 };

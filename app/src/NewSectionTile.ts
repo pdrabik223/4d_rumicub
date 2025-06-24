@@ -73,16 +73,11 @@ export class NewSectionTile {
     }
 
     private addBeginningBlock(scene: THREE.Scene) {
-        // console.log(this.group)
 
-        // for (var i = 0; i < this.group.children.length; i++) {
-        // console.log(this.group.children[i])
         scene.remove(this.group);
 
-        (new SquareTile(this.position, Mode.Mode3D)).addToScene(scene);
-
         (new NewSectionTile(new THREE.Vector3(this.position.x, this.position.y + 3, this.position.z))).addToScene(scene);
-        // }
+
         // remove original block
         // add new block in it's place 
         // add new original block back

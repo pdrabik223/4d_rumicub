@@ -4,7 +4,7 @@ import { SquareTile } from './SquareTile';
 import { board, components_map } from './globals';
 import { NewSectionTile } from './NewSectionTile';
 import { ActionType, Mode } from './CollisionPlanePosition';
-import { Position, Cell } from '../logic/Board';
+import { Position, Cell, Axis } from '../logic/Board';
 
 
 
@@ -44,21 +44,33 @@ export default class App {
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-        board.setCell(new Cell(3, 1), new Position(0, 0, 0));
-        board.setCell(new Cell(4, 2), new Position(1, 0, 0));
-        board.setCell(new Cell(5, 3), new Position(0, 1, 0));
-        board.setCell(new Cell(53, 0), new Position(1, 1, 0));
-        board.setCell(new Cell(3, 1), new Position(-1, 0, 0));
-        board.setCell(new Cell(4, 2), new Position(-1, 0, 0));
-        board.setCell(new Cell(5, 3), new Position(0, -1, 0));
-        board.setCell(new Cell(53, 0), new Position(-1, -1, 0));
-        board.setCell(new Cell(99, 0), new Position(-4, -1, 0));
-        // board.setCell(new Cell(63, 2), new Position(4, 0, 0));
+        for (var i = -6; i < 6; i++)
+            for (var j = -6; j < 6; j++)
+                board.setCell(new Cell(i + j, 1), new Position(i, j, 0));
+
+        board.fromBoard(board.split(Axis.Y, -1, 1));
+        board.fromBoard(board.split(Axis.Y, 1, 1));
+        board.fromBoard(board.split(Axis.X, -1, 1));
+        board.fromBoard(board.split(Axis.X, 1, 1));
+
+        if (board.getBoundaries() != null) {
+            // for Mode.Mode2D
+            var bunderies = board.getBoundaries()!;
+            
+
+            (new NewSectionTile(new THREE.Vector3((bunderies[0][0] - 2) * 2.1, 0, 0))).addToScene(this.scene);
+            (new NewSectionTile(new THREE.Vector3((bunderies[0][1] + 2) * 2.1, 0, 0))).addToScene(this.scene);
+
+            (new NewSectionTile(new THREE.Vector3(0, (bunderies[1][0] - 2) * 2.1, 0))).addToScene(this.scene);
+            (new NewSectionTile(new THREE.Vector3(0, (bunderies[1][1] + 2) * 2.1, 0))).addToScene(this.scene);
+
+        } else {
+            (new NewSectionTile(new THREE.Vector3(0, 0, 0))).addToScene(this.scene);
+        }
+
 
         board.forEach((pos: Position, cell: Cell) => {
-
-            (new SquareTile(cell.value, cell.color, new THREE.Vector3(pos.x * 2.1, pos.y * 2.1, pos.z * 2.1), Mode.Mode3D)).addToScene(this.scene);
-
+            (new SquareTile(cell.value, cell.color, new THREE.Vector3(pos.x * 2.1, pos.y * 2.1, pos.z * 2.1), Mode.Mode2D)).addToScene(this.scene);
         });
 
         // (new NewSectionTile(new THREE.Vector3(0, 3, 0))).addToScene(this.scene);
@@ -66,6 +78,7 @@ export default class App {
         this.initCameraControls();
         this.initLights();
         this.animate();
+        console.log(board.getBoundaries())
     }
 
     private initCameraControls() {

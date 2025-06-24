@@ -59,7 +59,7 @@ export class SquareTile {
             mesh.position.y -= 0.4;
         }
         else {
-            mesh.scale.set(1, 1, 0.5);
+            // mesh.scale.set(1, 1, 1);
             mesh.position.z += 1.5;
             mesh.position.x -= 0.4;
             mesh.position.y -= 0.43;
