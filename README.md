@@ -3,12 +3,18 @@
 
 
 # Installation 
-1.  Install nmp
-2. isntall typescript using npm 
-``` sh
-npm install --save @types/three 
+1. [Install node](https://nodejs.org/en)
+
+# Run locally
+
+```bash
+cd app
 ```
-3. transpile typescript to js
-```sh
-ts-node .\src\index.ts
+
+```bash
+npm install
+```
+
+```bash
+npm run dev
 ```
